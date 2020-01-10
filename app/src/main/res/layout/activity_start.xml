@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F7E889"
+    android:weightSum="5"
+    tools:context=".Start">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="3"
+    android:id="@+id/animly">
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/imgg"
+        android:src="@drawable/cbm_logo"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imgg"
+        android:id="@+id/maintext"
+        android:gravity="center"
+        android:text="Central Bank Of Myanmar"
+        android:layout_marginTop="30dp"
+        android:textColor="#2B046B"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Foreign Exchange Rates"
+        android:textColor="#797373"
+        android:layout_below="@id/maintext"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/fertxt"
+        android:gravity="center"
+        android:textSize="15sp"/>
+
+</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        >
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:id="@+id/prog"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="version : 1.0.0"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:textColor="#2B046B"/>
+    </RelativeLayout>
+</LinearLayout>

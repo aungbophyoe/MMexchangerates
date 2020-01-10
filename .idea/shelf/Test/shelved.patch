@@ -1,0 +1,146 @@
+Index: app/src/main/java/com/example/exchangerates/DaoAccess.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.exchangerates;\r\n\r\nimport androidx.room.Dao;\r\nimport androidx.room.Insert;\r\nimport androidx.room.Query;\r\n\r\nimport java.util.List;\r\n\r\n@Dao\r\npublic interface DaoAccess {\r\n\r\n    @Query(\"SELECT * FROM Currency\")\r\n    List<Currency> getAllCurrency();\r\n\r\n    @Insert\r\n    void insertAll(Currency... currencies);\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/exchangerates/DaoAccess.java	(revision 3e03ccae92ce1254eeb16240f3cb083016d651f6)
++++ app/src/main/java/com/example/exchangerates/DaoAccess.java	(date 1573135287385)
+@@ -1,6 +1,7 @@
+ package com.example.exchangerates;
+ 
+ import androidx.room.Dao;
++import androidx.room.Delete;
+ import androidx.room.Insert;
+ import androidx.room.Query;
+ 
+@@ -14,4 +15,7 @@
+ 
+     @Insert
+     void insertAll(Currency... currencies);
++
++    @Query("Delete From Currency Where id=:id")
++    void delAll(int id);
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/example/exchangerates/CurrencyRecvAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.exchangerates;\r\n\r\nimport android.content.Context;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.ImageButton;\r\nimport android.widget.TextView;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\nimport androidx.swiperefreshlayout.widget.SwipeRefreshLayout;\r\n\r\nimport java.util.List;\r\n\r\npublic class CurrencyRecvAdapter extends RecyclerView.Adapter<CurrencyRecvAdapter.ViewHolder> {\r\n    private Context context;\r\n    private LayoutInflater layoutInflater;\r\n    private SwipeRefreshLayout swipe;\r\n    private List<Currency> currencyList;\r\n\r\n    public CurrencyRecvAdapter(Context context, List<Currency> currencyList) {\r\n        this.context = context;\r\n        this.currencyList = currencyList;\r\n        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);\r\n    }\r\n\r\n\r\n    @NonNull\r\n    @Override\r\n    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {\r\n        View view = LayoutInflater.from(context).inflate(R.layout.currency_item,parent,false);\r\n        return new CurrencyRecvAdapter.ViewHolder(view);\r\n    }\r\n\r\n    @Override\r\n    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {\r\n        final Currency c = currencyList.get(position);\r\n        holder.tvname.setText(\"1 \"+c.getName());\r\n        holder.tvrate.setText(c.getRate()+\" MMK\");\r\n    }\r\n\r\n    @Override\r\n    public int getItemCount() {\r\n        return currencyList.size();\r\n    }\r\n\r\n    public class ViewHolder extends RecyclerView.ViewHolder {\r\n        private TextView tvname;\r\n        private TextView tvrate;\r\n\r\n\r\n        public ViewHolder(View itemView) {\r\n            super(itemView);\r\n            tvname =itemView.findViewById(R.id.tvName);\r\n            tvrate =itemView.findViewById(R.id.tvRate);\r\n\r\n\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/exchangerates/CurrencyRecvAdapter.java	(revision 3e03ccae92ce1254eeb16240f3cb083016d651f6)
++++ app/src/main/java/com/example/exchangerates/CurrencyRecvAdapter.java	(date 1573131292791)
+@@ -4,19 +4,16 @@
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+-import android.widget.ImageButton;
+ import android.widget.TextView;
+ 
+ import androidx.annotation.NonNull;
+ import androidx.recyclerview.widget.RecyclerView;
+-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+ 
+ import java.util.List;
+ 
+ public class CurrencyRecvAdapter extends RecyclerView.Adapter<CurrencyRecvAdapter.ViewHolder> {
+     private Context context;
+     private LayoutInflater layoutInflater;
+-    private SwipeRefreshLayout swipe;
+     private List<Currency> currencyList;
+ 
+     public CurrencyRecvAdapter(Context context, List<Currency> currencyList) {
+Index: app/src/main/java/com/example/exchangerates/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.exchangerates;\r\n\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\nimport androidx.room.Room;\r\nimport androidx.swiperefreshlayout.widget.SwipeRefreshLayout;\r\n\r\nimport android.os.Bundle;\r\nimport android.os.Handler;\r\nimport android.widget.ListView;\r\nimport android.widget.Toast;\r\n\r\nimport java.util.List;\r\n\r\nimport retrofit2.Call;\r\nimport retrofit2.Callback;\r\nimport retrofit2.Response;\r\nimport retrofit2.Retrofit;\r\nimport retrofit2.converter.gson.GsonConverterFactory;\r\n\r\npublic class MainActivity extends AppCompatActivity implements Callback<CurrencyExchange> {\r\n\r\n\r\n    private RecyclerView recv;\r\n    private SwipeRefreshLayout swipe;\r\n    List<Currency>dblist;\r\n    AppDatabase db;\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_main);\r\n        swipe=findViewById(R.id.swipe);\r\n        recv=findViewById(R.id.recv);\r\n        recv.setHasFixedSize(true);\r\n        recv.setLayoutManager(new LinearLayoutManager(this));\r\n         db= Room.databaseBuilder(getApplicationContext(),AppDatabase.class,\"Currency\")\r\n                .allowMainThreadQueries()\r\n                .build();\r\n         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {\r\n             @Override\r\n             public void onRefresh() {\r\n                 new Handler().postDelayed(new Runnable() {\r\n                     @Override\r\n                     public void run() {\r\n                         loadCurrencyExchangeData();\r\n                         swipe.setRefreshing(false);\r\n                     }\r\n                 },3000);\r\n             }\r\n         });\r\n\r\n    }\r\n\r\n    @Override\r\n    protected void onStart() {\r\n        super.onStart();\r\n        loadCurrencyExchangeData();\r\n    }\r\n\r\n    private void loadCurrencyExchangeData(){\r\n        Retrofit retrofit = new Retrofit.Builder()\r\n                .baseUrl(\"https://forex.cbm.gov.mm/api/\")\r\n                .addConverterFactory(GsonConverterFactory.create())\r\n                .build();\r\n\r\n        CurrencyExchangeService service = retrofit.create(CurrencyExchangeService.class);\r\n        Call<CurrencyExchange> call = service.loadCurrencyExchange();\r\n        call.enqueue(this);\r\n    }\r\n\r\n    @Override\r\n    public void onResponse(Call<CurrencyExchange> call, Response<CurrencyExchange> response) {\r\n        CurrencyExchange currencyExchange = response.body();\r\n       // recv.setAdapter(new CurrencyRecvAdapter(this, currencyExchange.getCurrencyList()));\r\n        dblist=currencyExchange.getCurrencyList();\r\n        addDB();\r\n        selectDB();\r\n\r\n    }\r\n\r\n    private void selectDB() {\r\n        List<Currency>dbSelect=db.daoAccess().getAllCurrency();\r\n        recv.setAdapter(new CurrencyRecvAdapter(this,dbSelect));\r\n    }\r\n\r\n    private void addDB() {\r\n        for(int i=0;i<dblist.size();i++){\r\n            Currency cc=new Currency(dblist.get(i).getName(),dblist.get(i).getRate());\r\n            db.daoAccess().insertAll(cc);\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onFailure(Call<CurrencyExchange> call, Throwable t) {\r\n        Toast.makeText(this,\"Please connect to Internet, Can get the latest Exchange Rates.\", Toast.LENGTH_LONG).show();\r\n        selectDB();\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/exchangerates/MainActivity.java	(revision 3e03ccae92ce1254eeb16240f3cb083016d651f6)
++++ app/src/main/java/com/example/exchangerates/MainActivity.java	(date 1573135965399)
+@@ -11,6 +11,7 @@
+ import android.widget.ListView;
+ import android.widget.Toast;
+ 
++import java.util.ArrayList;
+ import java.util.List;
+ 
+ import retrofit2.Call;
+@@ -24,8 +25,10 @@
+ 
+     private RecyclerView recv;
+     private SwipeRefreshLayout swipe;
+-    List<Currency>dblist;
++    List<Currency>dblist=new ArrayList<>();
+     AppDatabase db;
++    Currency cc;
++    List<Currency>dbSelect=new ArrayList<>();
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -37,6 +40,7 @@
+          db= Room.databaseBuilder(getApplicationContext(),AppDatabase.class,"Currency")
+                 .allowMainThreadQueries()
+                 .build();
++        loadCurrencyExchangeData();
+          swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+              @Override
+              public void onRefresh() {
+@@ -55,7 +59,7 @@
+     @Override
+     protected void onStart() {
+         super.onStart();
+-        loadCurrencyExchangeData();
++       // loadCurrencyExchangeData();
+     }
+ 
+     private void loadCurrencyExchangeData(){
+@@ -72,6 +76,7 @@
+     @Override
+     public void onResponse(Call<CurrencyExchange> call, Response<CurrencyExchange> response) {
+         CurrencyExchange currencyExchange = response.body();
++       dblist.clear();
+        // recv.setAdapter(new CurrencyRecvAdapter(this, currencyExchange.getCurrencyList()));
+         dblist=currencyExchange.getCurrencyList();
+         addDB();
+@@ -80,17 +85,30 @@
+     }
+ 
+     private void selectDB() {
+-        List<Currency>dbSelect=db.daoAccess().getAllCurrency();
++        dbSelect.clear();
++       dbSelect =db.daoAccess().getAllCurrency();
+         recv.setAdapter(new CurrencyRecvAdapter(this,dbSelect));
+     }
+ 
+     private void addDB() {
+-        for(int i=0;i<dblist.size();i++){
+-            Currency cc=new Currency(dblist.get(i).getName(),dblist.get(i).getRate());
+-            db.daoAccess().insertAll(cc);
+-        }
+-    }
++        dbSelect.clear();
++        dbSelect=db.daoAccess().getAllCurrency();
++        if(dbSelect.size()>0){
++            for(int j=0;j<dbSelect.size();j++){
++                db.daoAccess().delAll(dbSelect.get(j).getId());
++            }
++            dbSelect=db.daoAccess().getAllCurrency();
++        }
++
++        if(dbSelect.size()==0){
++            for(int i=0;i<dblist.size();i++){
++                cc=new Currency(dblist.get(i).getName(),dblist.get(i).getRate());
++                db.daoAccess().insertAll(cc);
++            }
++        }
+ 
++     }
++
+     @Override
+     public void onFailure(Call<CurrencyExchange> call, Throwable t) {
+         Toast.makeText(this,"Please connect to Internet, Can get the latest Exchange Rates.", Toast.LENGTH_LONG).show();
